@@ -5,6 +5,4 @@ public class SelectQuery implements Query {
     public String getQuery() {
         return null;
     }
-
-
 }
