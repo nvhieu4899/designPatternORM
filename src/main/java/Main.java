@@ -1,4 +1,4 @@
-import connection.ConnectionFactory;
+import connection.DBConnection;
 import query.QueryBuilder;
 
 import java.sql.Connection;
@@ -17,11 +17,18 @@ public class Main {
         String query4 = QueryBuilder.deleteFrom("SINHVIEN").where("name = 'hieu'").build();
         System.out.println(query4);
 
-        /**
-         * Demo Connection Factory
+        /*
+        Demo Connection Factory
          */
+        System.out.print("Open connection #1: ");
+        System.out.println(DBConnection.open());
+        System.out.print("Open connection #2: ");
+        System.out.println(DBConnection.open());
+        System.out.print("Open connection #3: ");
+        System.out.println(DBConnection.open());
+
         try {
-            Connection connection = ConnectionFactory.getConnection();
+            Connection connection = DBConnection.open();
             Statement statement = connection.createStatement();
             String query5 = QueryBuilder.select("Id", "Name").from("Category").build();
             System.out.println(query5);
@@ -30,7 +37,7 @@ public class Main {
                 System.out.print(rs.getString(1) + "\t"
                         + rs.getString(2) + System.lineSeparator());
             }
-            connection.close();
+            DBConnection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
