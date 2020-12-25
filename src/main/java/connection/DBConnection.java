@@ -1,17 +1,20 @@
 package connection;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class DBConnection {
-
-    //TODO Read connection's config from file
-    private static final String DRIVER = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-    private static final String URL = "jdbc:sqlserver://4de3f572-86f0-47db-bee6-ac58007e9723.sqlserver.sequelizer.com";
-    private static final String USERNAME = "gnrtmtydlfifkgmw";
-    private static final String PASSWORD = "Pz626ohHizzmEJrWoKHME62n8XyNYW7AfhFKmvnbyhLetTKY4E7WNYwSGR2gWARu";
-    private static Connection connection = null;
+    //Default location
+    private static final String CONFIG_FILE_PATH = "\\config.properties";
+    private static String DRIVER = null;
+    private static String URL = null;
+    private static String USERNAME = null;
+    private static String PASSWORD = null;
 
     private DBConnection() {
     }
@@ -20,33 +23,43 @@ public class DBConnection {
      * Open connection to Database
      *
      * @return Connection object
-     *
-     * @throws SQLException if connection string is invalid
-     * @throws ClassNotFoundException if driver class name is invalid or not exist
      */
     public static Connection open() {
-        if (connection == null) {
-            try {
-                Class.forName(DRIVER);
-                connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-            } catch (ClassNotFoundException | SQLException e) {
-                e.printStackTrace();
+        try {
+            if (DRIVER == null || URL == null || USERNAME == null || PASSWORD == null) {
+                readConfig();
             }
+            Class.forName(DRIVER);
+            return DriverManager.getConnection(URL, USERNAME, PASSWORD);
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
         }
-        return connection;
+        return null;
     }
 
     /**
-     * Close connection to Database
-     *
-     * @throws SQLException if closing connection fail
+     * Read config data to establish JDBC connection.
      */
-    public static void close() {
-        if (connection != null) {
+    private static void readConfig() {
+        System.out.println("Reading config file...");
+        Properties properties = new Properties();
+        InputStream input = null;
+        try {
+            String _dirname = System.getProperty("user.dir");
+            input = new FileInputStream(_dirname.concat(CONFIG_FILE_PATH));
+            properties.load(input);
+            DRIVER = properties.getProperty("DRIVER");
+            URL = properties.getProperty("URL");
+            USERNAME = properties.getProperty("USERNAME");
+            PASSWORD = properties.getProperty("PASSWORD");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
             try {
-                connection.close();
-                connection = null;
-            } catch (SQLException e) {
+                if (input != null) {
+                    input.close();
+                }
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

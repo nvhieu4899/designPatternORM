@@ -37,7 +37,7 @@ public class Main {
                 System.out.print(rs.getString(1) + "\t"
                         + rs.getString(2) + System.lineSeparator());
             }
-            DBConnection.close();
+            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
