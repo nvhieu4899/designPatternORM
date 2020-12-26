@@ -11,10 +11,10 @@ import java.util.Properties;
 public class DBConnection {
     //Default location
     private static final String CONFIG_FILE_PATH = "\\config.properties";
-    private static String DRIVER = null;
-    private static String URL = null;
-    private static String USERNAME = null;
-    private static String PASSWORD = null;
+    private static String DRIVER = "";
+    private static String URL = "";
+    private static String USERNAME = "";
+    private static String PASSWORD = "";
 
     private DBConnection() {
     }
@@ -26,12 +26,11 @@ public class DBConnection {
      */
     public static Connection open() {
         try {
-            if (DRIVER == null || URL == null || USERNAME == null || PASSWORD == null) {
+            if (DRIVER.isEmpty() || URL.isEmpty() || USERNAME.isEmpty() || PASSWORD.isEmpty()) {
                 readConfig();
             }
-            Class.forName(DRIVER);
             return DriverManager.getConnection(URL, USERNAME, PASSWORD);
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
