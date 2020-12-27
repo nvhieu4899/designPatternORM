@@ -11,7 +11,6 @@ import java.util.Properties;
 public class ConnectionFactory {
     //Default location
     private static final String CONFIG_FILE_PATH = "\\config.properties";
-    private String DRIVER = "";
     private String URL = "";
     private String USERNAME = "";
     private String PASSWORD = "";
@@ -48,14 +47,12 @@ public class ConnectionFactory {
      * Read config data to establish JDBC connection.
      */
     private void readConfig(String configFilePath) {
-        System.out.println("Reading config file...");
         Properties properties = new Properties();
         InputStream input = null;
         try {
             String _dirname = System.getProperty("user.dir");
             input = new FileInputStream(_dirname.concat(configFilePath));
             properties.load(input);
-            DRIVER = properties.getProperty("DRIVER");
             URL = properties.getProperty("URL");
             USERNAME = properties.getProperty("USERNAME");
             PASSWORD = properties.getProperty("PASSWORD");
