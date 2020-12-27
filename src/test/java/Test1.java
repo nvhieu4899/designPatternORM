@@ -25,6 +25,7 @@ public class Test1 {
         List<Category> categories = categoryMapper.deserialize(resultSet);
         assert categories != null;
         assert categories.size() > 0;
+        System.out.println(System.lineSeparator() + "Test mapping result:");
         for (Category category : categories) {
             System.out.println(category);
         }
@@ -36,8 +37,18 @@ public class Test1 {
         List<Category> categories = repository.findAll();
         assert categories != null;
         assert categories.size() > 0;
+        System.out.println(System.lineSeparator() + "Test Select all result:");
         for (Category category : categories) {
             System.out.println(category);
         }
+    }
+
+    @org.junit.Test
+    public void testSelectByID() {
+        CategoryRepository repository = new CategoryRepository();
+        Category category = repository.findById(5L);
+        assert category != null;
+        System.out.println(System.lineSeparator() + "Test Select by ID result:");
+        System.out.println(category);
     }
 }

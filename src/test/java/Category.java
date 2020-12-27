@@ -1,6 +1,8 @@
 import annotation.Column;
 import annotation.Entity;
 
+import java.sql.Date;
+
 @Entity
 public class Category {
 
@@ -13,13 +15,17 @@ public class Category {
     @Column(name = "Order")
     private Long order;
 
+    @Column(name = "ModifiedDate")
+    private Date modifiedDate;
+
     public Category() {
     }
 
-    public Category(Long id, String name, Long order) {
+    public Category(Long id, String name, Long order, Date modifiedDate) {
         this.id = id;
         this.name = name;
         this.order = order;
+        this.modifiedDate = modifiedDate;
     }
 
     public Long getId() {
@@ -46,12 +52,21 @@ public class Category {
         this.order = order;
     }
 
+    public Date getModifiedDate() {
+        return modifiedDate;
+    }
+
+    public void setModifiedDate(Date modifiedDate) {
+        this.modifiedDate = modifiedDate;
+    }
+
     @Override
     public String toString() {
         return "Category{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", order=" + order +
+                ", modifiedDate=" + modifiedDate +
                 '}';
     }
 }

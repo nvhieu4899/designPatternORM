@@ -5,6 +5,7 @@ import query.QueryBuilder;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 public abstract class AbstractRepository<T, ID> {
@@ -24,11 +25,37 @@ public abstract class AbstractRepository<T, ID> {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public T findById(ID id) {
-        throw new UnsupportedOperationException();
+        Connection connection = connectionFactory.open();
+        Entity entity = tClass.getAnnotation(Entity.class);
+        String tableName = tClass.getSimpleName();
+        if (!entity.table().isEmpty()) {
+            tableName = entity.table();
+        }
+        try {
+            Statement statement = connection.createStatement();
+            String query = QueryBuilder.select("*").from(tableName).where("ID = " + id).build();
+            ResultSet resultSet = statement.executeQuery(query);
+            return mapper.deserialize(resultSet).get(0);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public T delete(T obj) {
