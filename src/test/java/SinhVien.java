@@ -21,4 +21,16 @@ public class SinhVien {
 
     public SinhVien() {
     }
+
+    public String getMssv() {
+        return mssv;
+    }
+
+    public String getHoVaTen() {
+        return hoVaTen;
+    }
+
+    public Date getNgaySinh() {
+        return ngaySinh;
+    }
 }

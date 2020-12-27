@@ -1,6 +1,8 @@
 import annotation.Column;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -10,23 +12,23 @@ import java.util.List;
 
 public class Mapper<T> {
 
-    public List<T> deserialize(ResultSet resultSet, Class<T> outputClass) {
+    private Class<T> persistenceClass;
+
+    public List<T> deserialize(ResultSet resultSet) {
 
         List<T> results = new ArrayList<>();
         try {
             ResultSetMetaData metaData = resultSet.getMetaData();
-            HashMap<String, String> deserializeContext = getDeserializeContext(metaData, outputClass);
-            int rowIndex = 0;
+            HashMap<String, String> deserializeContext = getDeserializeContext(metaData);
             int colNums = metaData.getColumnCount();
             while (resultSet.next()) {
-
-                T mappedObj = outputClass.newInstance();
+                T mappedObj = persistenceClass.newInstance();
                 for (int i = 0; i < colNums; i++) {
                     String colName = metaData.getColumnName(i + 1);
                     String objField = deserializeContext.getOrDefault(colName, null);
 
                     if (objField != null) {
-                        Field field = outputClass.getDeclaredField(objField);
+                        Field field = persistenceClass.getDeclaredField(objField);
                         field.setAccessible(true);
                         Object fieldValue = resultSet.getObject(i + 1);
                         field.set(mappedObj, fieldValue);
@@ -43,18 +45,22 @@ public class Mapper<T> {
     }
 
     //getCol
-    private HashMap<String, String> getDeserializeContext(ResultSetMetaData metaData, Class<T> outputClass) throws SQLException {
+    private HashMap<String, String> getDeserializeContext(ResultSetMetaData metaData) throws SQLException {
         HashMap<String, String> hashMap = new HashMap<>();
         for (int i = 0; i < metaData.getColumnCount(); i++) {
             hashMap.put(metaData.getColumnName(i + 1), null);
         }
-
-        Field[] outputField = outputClass.getDeclaredFields();
+        Field[] outputField = persistenceClass.getDeclaredFields();
 
         for (Field f : outputField) {
             String mapperName = f.isAnnotationPresent(Column.class) ? f.getAnnotation(Column.class).name() : f.getName();
             hashMap.put(mapperName, f.getName());
         }
         return hashMap;
+    }
+
+    public Mapper(Class<T> tClass) {
+        this.persistenceClass = tClass;
+
     }
 }
