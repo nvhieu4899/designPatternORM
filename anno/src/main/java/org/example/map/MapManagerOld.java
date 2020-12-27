@@ -4,7 +4,7 @@ import org.apache.commons.collections4.BidiMap;
 
 import java.util.HashMap;
 
-public class MapManager {
+public class MapManagerOld {
     private static HashMap<String, BidiMap<String, String>> maps = new HashMap<>();
 
     public static BidiMap<String, String> getMap(String className) {
@@ -15,6 +15,7 @@ public class MapManager {
     }
 
     public static void addMap(String key, BidiMap<String, String> map) {
+        System.out.println(maps.size());
         maps.put(key, map);
     }
 

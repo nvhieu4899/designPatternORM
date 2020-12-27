@@ -1,2 +1,4 @@
 rootProject.name = 'ormdp'
-
+include ':anno'
+include ':processor'
+include ':user'

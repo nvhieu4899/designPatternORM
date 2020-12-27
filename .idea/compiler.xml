@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$PROJECT_DIR$/processor/build/libs/processor-1.0-SNAPSHOT.jar" />
+          <entry name="$PROJECT_DIR$/anno/build/libs/anno-1.0-SNAPSHOT.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-collections4/4.1/a4cf4688fe1c7e3a63aa636cc96d013af537768e/commons-collections4-4.1.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.googlecode.json-simple/json-simple/1.1.1/c9ad4a0850ab676c5c64461a05ca524cdfff59f1/json-simple-1.1.1.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/junit/junit/4.10/e4f1766ce7404a08f45d859fb9c226fc9e41a861/junit-4.10.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.1/860340562250678d1a344907ac75754e259cdb14/hamcrest-core-1.1.jar" />
+        </processorPath>
+        <module name="ormdp.user.main" />
+        <module name="ormdp.main" />
+      </profile>
+    </annotationProcessing>
     <bytecodeTargetLevel target="1.8" />
   </component>
 </project>
