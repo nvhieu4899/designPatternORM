@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Test1 {
@@ -50,5 +51,21 @@ public class Test1 {
         assert category != null;
         System.out.println(System.lineSeparator() + "Test Select by ID result:");
         System.out.println(category);
+    }
+
+    @org.junit.Test
+    public void testSelectAllByID() {
+        CategoryRepository repository = new CategoryRepository();
+        List<Long> ids = new ArrayList<>();
+        ids.add(20L);
+        ids.add(5L);
+        ids.add(19L);
+        List<Category> categories = repository.findAllByID(ids);
+        assert categories != null;
+        assert categories.size() > 0;
+        System.out.println(System.lineSeparator() + "Test Select all by ID result:");
+        for (Category category : categories) {
+            System.out.println(category);
+        }
     }
 }

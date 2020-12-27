@@ -3,9 +3,11 @@ import connection.ConnectionFactory;
 import query.QueryBuilder;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public abstract class AbstractRepository<T, ID> {
@@ -42,9 +44,10 @@ public abstract class AbstractRepository<T, ID> {
             tableName = entity.table();
         }
         try {
-            Statement statement = connection.createStatement();
-            String query = QueryBuilder.select("*").from(tableName).where("ID = " + id).build();
-            ResultSet resultSet = statement.executeQuery(query);
+            String query = QueryBuilder.select("*").from(tableName).where("ID = ?").build();
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setObject(1, id);
+            ResultSet resultSet = statement.executeQuery();
             return mapper.deserialize(resultSet).get(0);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -58,9 +61,16 @@ public abstract class AbstractRepository<T, ID> {
         }
     }
 
+    public List<T> findAllByID(Collection<ID> ids) {
+        List<T> result = new ArrayList<>();
+        for (ID id : ids) {
+            result.add(this.findById(id));
+        }
+        return result;
+    }
+
     public T delete(T obj) {
         throw new UnsupportedOperationException();
-
     }
 
     public T save(T obj) {
