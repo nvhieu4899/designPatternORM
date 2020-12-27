@@ -1,10 +1,12 @@
 import annotation.Column;
 import annotation.Entity;
+import annotation.Id;
 
 import java.sql.Date;
 
-@Entity
-public class SinhVien {
+@Entity(table = "sinhvien")
+public class Student {
+    @Id
     @Column(name = "id")
     private String mssv;
     @Column(name = "name")
@@ -13,13 +15,13 @@ public class SinhVien {
     @Column(name = "dob")
     private Date ngaySinh;
 
-    public SinhVien(String mssv, String hoVaTen, Date ngaySinh) {
+    public Student(String mssv, String hoVaTen, Date ngaySinh) {
         this.mssv = mssv;
         this.hoVaTen = hoVaTen;
         this.ngaySinh = ngaySinh;
     }
 
-    public SinhVien() {
+    public Student() {
     }
 
     public String getMssv() {
