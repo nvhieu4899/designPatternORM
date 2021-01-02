@@ -56,8 +56,26 @@ public class Mapper<T> {
         return hashMap;
     }
 
+
+    public HashMap<String, Object> serialize(T obj) {
+        HashMap<String, Object> hashMap = new HashMap<>();
+        try {
+            Field[] fields = persistenceClass.getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                Object columnValue = field.get(obj);
+                if (columnValue == null) continue;
+                String columnName = field.isAnnotationPresent(Column.class) ? field.getAnnotation(Column.class).name() : field.getName();
+                hashMap.put(columnName, columnValue);
+            }
+            return hashMap;
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public Mapper(Class<T> tClass) {
         this.persistenceClass = tClass;
-
     }
 }

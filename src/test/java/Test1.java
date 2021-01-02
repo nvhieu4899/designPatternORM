@@ -1,11 +1,9 @@
 import connection.ConnectionFactory;
 import query.QueryBuilder;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class Test1 {
@@ -67,5 +65,16 @@ public class Test1 {
         for (Category category : categories) {
             System.out.println(category);
         }
+    }
+
+    @org.junit.Test
+    public void testSaveNewRow() {
+        CategoryRepository repository = new CategoryRepository();
+        Category newCategory = new Category();
+        newCategory.setName("New Category 1");
+        newCategory.setModifiedDate(new Date(Calendar.getInstance().getTime().getTime()));
+        Category result = repository.save(newCategory);
+        System.out.println(result);
+        assert result != null;
     }
 }
