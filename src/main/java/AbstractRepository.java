@@ -61,6 +61,8 @@ public abstract class AbstractRepository<T, ID> {
         }
     }
 
+
+
     public List<T> findAllByID(Collection<ID> ids) {
         List<T> result = new ArrayList<>();
         for (ID id : ids) {
