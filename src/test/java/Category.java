@@ -1,11 +1,13 @@
 import annotation.Column;
 import annotation.Entity;
+import annotation.Id;
 
 import java.sql.Date;
 
 @Entity
 public class Category {
 
+    @Id
     @Column(name="Id")
     private Long id;
 

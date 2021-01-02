@@ -77,4 +77,15 @@ public class Test1 {
         System.out.println(result);
         assert result != null;
     }
+
+    @org.junit.Test
+    public void testSaveUpdateRow() {
+        CategoryRepository repository = new CategoryRepository();
+        Category existCategory = repository.findById(60L);
+        existCategory.setName(existCategory.getName() + "1");
+        existCategory.setModifiedDate(new Date(Calendar.getInstance().getTime().getTime()));
+        Category result = repository.save(existCategory);
+        System.out.println(result);
+        assert result != null;
+    }
 }

@@ -1,6 +1,8 @@
 import annotation.Entity;
+import annotation.Id;
 import connection.ConnectionFactory;
 import query.QueryBuilder;
+import query.UpdateQueryBuilder;
 
 import java.lang.reflect.Field;
 import java.sql.*;
@@ -76,32 +78,60 @@ public abstract class AbstractRepository<T, ID> {
         if (!entity.table().isEmpty()) {
             tableName = entity.table();
         }
+
         HashMap<String, Object> hashMap = mapper.serialize(obj);
         String[] columnNames = new String[hashMap.size()];
         hashMap.keySet().toArray(columnNames);
-        List<Object> columnValues = new ArrayList<>(hashMap.values());
-        Object[] parameters = new Object[hashMap.size()];
-        Arrays.fill(parameters, "?");
-        try {
-            String query = QueryBuilder.insertInto(tableName).columns(columnNames).values(parameters).build();
-            PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            for (int i = 0; i < columnValues.size(); i++) {
-                statement.setObject(i + 1, columnValues.get(i));
+        Object[] columnValues = new Object[hashMap.size()];
+        hashMap.values().toArray(columnValues);
+
+        //Get ID field
+        Field idField = null;
+        for (Field field : tClass.getDeclaredFields()) {
+            if (field.isAnnotationPresent(Id.class)) {
+                idField = field;
+                break;
             }
-            int effectedRow = statement.executeUpdate();
-            if (effectedRow > 0) {
-                ResultSet resultSet = statement.getGeneratedKeys();
-                if (resultSet.next()) {
-                    ID generatedKey = resultSet.getObject(1, idClass);
-                    for (Field field : tClass.getDeclaredFields()) {
-                        if (field.getName().equalsIgnoreCase("ID")) {
-                            field.setAccessible(true);
-                            field.set(obj, generatedKey);
-                            return obj;
-                        }
+        }
+
+        try {
+            if (idField == null)
+                return null;
+            idField.setAccessible(true);
+            if (idField.get(obj) == null) {
+
+                //Insert
+                Object[] parameters = new Object[hashMap.size()];
+                Arrays.fill(parameters, "?");
+                String query = QueryBuilder.insertInto(tableName).columns(columnNames).values(parameters).build();
+                PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                for (int i = 0; i < columnValues.length; i++) {
+                    statement.setObject(i + 1, columnValues[i]);
+                }
+                if (statement.executeUpdate() > 0) {
+                    ResultSet resultSet = statement.getGeneratedKeys();
+                    if (resultSet.next()) {
+                        idField.set(obj, resultSet.getLong(1));
+                        return obj;
                     }
                 }
+            } else {
+
+                //Update
+                UpdateQueryBuilder q = QueryBuilder.update(tableName);
+                for (int i = 0; i < hashMap.size(); i++) {
+                    if (columnNames[i].equalsIgnoreCase("ID"))
+                        continue;
+                    q.set(columnNames[i], columnValues[i]);
+                }
+                q.where("ID = ?");
+                PreparedStatement statement = connection.prepareStatement(q.build());
+                statement.setObject(1, idField.get(obj));
+                if (statement.executeUpdate() > 0) {
+                    return obj;
+                }
             }
+
             return null;
         } catch (SQLException | IllegalAccessException e) {
             e.printStackTrace();
