@@ -1,4 +1,3 @@
-import annotation.Column;
 import annotation.Entity;
 import annotation.Id;
 import connection.ConnectionFactory;
@@ -32,11 +31,46 @@ public abstract class AbstractRepository<T, ID> {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public T findById(ID id) {
-        throw new UnsupportedOperationException();
+        Connection connection = connectionFactory.open();
+        Entity entity = tClass.getAnnotation(Entity.class);
+        String tableName = tClass.getSimpleName();
+        if (!entity.table().isEmpty()) {
+            tableName = entity.table();
+        }
+        try {
+            String query = QueryBuilder.select("*").from(tableName).where("ID = ?").build();
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setObject(1, id);
+            ResultSet resultSet = statement.executeQuery();
+            return mapper.deserialize(resultSet).get(0);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public List<T> findAllByID(Collection<ID> ids) {
+        List<T> result = new ArrayList<>();
+        for (ID id : ids) {
+            result.add(this.findById(id));
+        }
+        return result;
     }
 
     public T delete(T obj) {

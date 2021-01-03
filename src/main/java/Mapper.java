@@ -1,8 +1,6 @@
 import annotation.Column;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -30,9 +28,8 @@ public class Mapper<T> {
                     if (objField != null) {
                         Field field = persistenceClass.getDeclaredField(objField);
                         field.setAccessible(true);
-                        Object fieldValue = resultSet.getObject(i + 1);
+                        Object fieldValue = resultSet.getObject(i + 1, field.getType());
                         field.set(mappedObj, fieldValue);
-
                     }
                 }
                 results.add(mappedObj);
