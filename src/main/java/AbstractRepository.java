@@ -1,3 +1,4 @@
+import annotation.Column;
 import annotation.Entity;
 import annotation.Id;
 import connection.ConnectionFactory;
@@ -8,10 +9,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.AbstractMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class AbstractRepository<T, ID> {
     private Class<T> tClass;
