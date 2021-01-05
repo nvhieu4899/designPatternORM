@@ -71,8 +71,8 @@ public class Mapper<T> {
             return hashMap;
         } catch (IllegalAccessException e) {
             e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
     public Mapper(Class<T> tClass) {

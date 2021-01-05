@@ -1,9 +1,9 @@
+import annotation.IdAutoIncrement;
 import annotation.Column;
 import annotation.Entity;
 import annotation.Id;
 import connection.ConnectionFactory;
 import query.QueryBuilder;
-import query.UpdateQueryBuilder;
 
 import java.lang.reflect.Field;
 import java.sql.*;
@@ -38,17 +38,40 @@ public abstract class AbstractRepository<T, ID> {
 
     public T findById(ID id) {
         Connection connection = connectionFactory.open();
-        Entity entity = tClass.getAnnotation(Entity.class);
-        String tableName = tClass.getSimpleName();
-        if (!entity.table().isEmpty()) {
-            tableName = entity.table();
-        }
         try {
-            String query = QueryBuilder.select("*").from(tableName).where("ID = ?").build();
+            String query = QueryBuilder.select("*").from(tableName).where(idFieldMap.getValue().concat(" = ?")).build();
+            System.out.println(query);
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setObject(1, id);
             ResultSet resultSet = statement.executeQuery();
-            return mapper.deserialize(resultSet).get(0);
+            List<T> result = mapper.deserialize(resultSet);
+            if (result.size() > 0)
+                return result.get(0);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public List<T> findAllByID(Collection<ID> ids) {
+        Connection connection = connectionFactory.open();
+        try {
+            StringBuilder whereClause = new StringBuilder(idFieldMap.getValue().concat(" IN ("));
+            for (int i = 0; i < ids.size(); i++) whereClause.append("?,");
+            whereClause.replace(whereClause.length() - 1, whereClause.length(), ")");
+            String query = QueryBuilder.select("*").from(tableName).where(whereClause.toString()).build();
+            System.out.println(query);
+            PreparedStatement statement = connection.prepareStatement(query);
+            int i = 1;
+            for (ID id : ids) statement.setObject(i++, id);
+            ResultSet resultSet = statement.executeQuery();
+            return mapper.deserialize(resultSet);
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -59,14 +82,6 @@ public abstract class AbstractRepository<T, ID> {
                 e.printStackTrace();
             }
         }
-    }
-
-    public List<T> findAllByID(Collection<ID> ids) {
-        List<T> result = new ArrayList<>();
-        for (ID id : ids) {
-            result.add(this.findById(id));
-        }
-        return result;
     }
 
     public T delete(T obj) {
@@ -88,76 +103,27 @@ public abstract class AbstractRepository<T, ID> {
 
     public T save(T obj) {
         Connection connection = ConnectionFactory.getInstance().open();
-        Entity entity = tClass.getAnnotation(Entity.class);
-        String tableName = tClass.getSimpleName();
-        if (!entity.table().isEmpty()) {
-            tableName = entity.table();
-        }
-
-        HashMap<String, Object> hashMap = mapper.serialize(obj);
-        String[] columnNames = new String[hashMap.size()];
-        hashMap.keySet().toArray(columnNames);
-        Object[] columnValues = new Object[hashMap.size()];
-        hashMap.values().toArray(columnValues);
-
-        //Get ID field
-        Field idField = null;
-        for (Field field : tClass.getDeclaredFields()) {
-            if (field.isAnnotationPresent(Id.class)) {
-                idField = field;
-                break;
-            }
-        }
-
         try {
-            if (idField == null)
-                return null;
-            idField.setAccessible(true);
-            if (idField.get(obj) == null) {
-
-                //Insert
-                Object[] parameters = new Object[hashMap.size()];
-                Arrays.fill(parameters, "?");
-                String query = QueryBuilder.insertInto(tableName).columns(columnNames).values(parameters).build();
-                PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                for (int i = 0; i < columnValues.length; i++) {
-                    statement.setObject(i + 1, columnValues[i]);
-                }
-                if (statement.executeUpdate() > 0) {
-                    ResultSet resultSet = statement.getGeneratedKeys();
-                    if (resultSet.next()) {
-                        idField.set(obj, resultSet.getLong(1));
-                        return obj;
-                    }
-                }
-            } else {
-
-                //Update
-                UpdateQueryBuilder q = QueryBuilder.update(tableName);
-                for (int i = 0; i < hashMap.size(); i++) {
-                    if (columnNames[i].equalsIgnoreCase("ID"))
-                        continue;
-                    q.set(columnNames[i], columnValues[i]);
-                }
-                q.where("ID = ?");
-                PreparedStatement statement = connection.prepareStatement(q.build());
-                statement.setObject(1, idField.get(obj));
-                if (statement.executeUpdate() > 0) {
-                    return obj;
-                }
-            }
-
-            return null;
-        } catch (SQLException | IllegalAccessException e) {
+            Field idField = obj.getClass().getDeclaredField(idFieldMap.getKey());
+            SaveStrategy<T, ID> saver;
+            if (idField.isAnnotationPresent(IdAutoIncrement.class))
+                saver = new SaveIdAuto<>(connection, mapper, tableName, idFieldMap);
+            else
+                saver = new SaveIdManual<>(connection, mapper, tableName, idFieldMap);
+            T updatedRow = saver.update(obj);
+            if (updatedRow != null) return updatedRow;
+            T insertedRow = saver.insert(obj);
+            if (insertedRow != null) return insertedRow;
+        } catch (NoSuchFieldException e) {
             e.printStackTrace();
-            return null;
         } finally {
             try {
                 connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
             }
         }
+        return null;
     }
 
     public AbstractRepository(Class<T> tClass, Class<ID> idClass) {
