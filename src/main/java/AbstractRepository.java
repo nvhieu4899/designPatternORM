@@ -1,3 +1,4 @@
+import Loader.Mapper;
 import annotation.Entity;
 import connection.ConnectionFactory;
 import query.QueryBuilder;
@@ -20,7 +21,8 @@ public abstract class AbstractRepository<T, ID> {
         String tableName = tClass.getSimpleName();
         if (!entity.table().isEmpty()) tableName = entity.table();
         try {
-            ResultSet resultSet = connection.createStatement().executeQuery(QueryBuilder.select("*").from(tableName).build());
+            ResultSet resultSet
+                    = connection.createStatement().executeQuery(QueryBuilder.select("*").from(tableName).build());
             return mapper.deserialize(resultSet);
         } catch (SQLException e) {
             e.printStackTrace();
