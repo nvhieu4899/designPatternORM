@@ -71,6 +71,51 @@ public abstract class AbstractRepository<T, ID> {
         return result;
     }
 
+
+    public List<T> findAllWhere(String whereClause, Object... parameters) {
+        Connection connection = connectionFactory.open();
+        Entity entity = tClass.getAnnotation(Entity.class);
+        String tableName = tClass.getSimpleName();
+        if (!entity.table().isEmpty()) {
+            tableName = entity.table();
+        }
+        try {
+            String query = QueryBuilder.select("*").from(tableName).where(whereClause).build();
+            PreparedStatement statement = connection.prepareStatement(query);
+            for (int i = 0; i < parameters.length; i++) {
+                statement.setObject(i + 1, parameters[i]);
+            }
+            ResultSet resultSet = statement.executeQuery();
+            return mapper.deserialize(resultSet);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    public T findOneWhere(String whereClause, Object... parameters) {
+        Connection connection = connectionFactory.open();
+        Entity entity = tClass.getAnnotation(Entity.class);
+        String tableName = tClass.getSimpleName();
+        if (!entity.table().isEmpty()) {
+            tableName = entity.table();
+        }
+        try {
+            String query = QueryBuilder.select("*").from(tableName).where(whereClause).limitBy(1).build();
+            PreparedStatement statement = connection.prepareStatement(query);
+            for (int i = 0; i < parameters.length; i++) {
+                statement.setObject(i + 1, parameters[i]);
+            }
+            ResultSet resultSet = statement.executeQuery();
+            return mapper.deserialize(resultSet).get(0);
+
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+
     public T delete(T obj) {
         try {
             Field fieldId = obj.getClass().getDeclaredField(idFieldMap.getKey());
