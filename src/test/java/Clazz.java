@@ -12,7 +12,7 @@ public class Clazz {
     private Long idStudent;
 
     @OneToMany
-    private Collection<SinhV> sinhV;
+    private Collection<Student> student;
 
 
     public Long getId() {
@@ -35,12 +35,12 @@ public class Clazz {
         return idStudent;
     }
 
-    public Collection<SinhV> getStudent() {
-        return sinhV;
+    public Collection<Student> getStudent() {
+        return student;
     }
 
-    public void setStudent(Collection<SinhV> sinhV) {
-        this.sinhV = sinhV;
+    public void setStudent(Collection<Student> student) {
+        this.student = student;
     }
 
     public void setIdStudent(Long idStudent) {
