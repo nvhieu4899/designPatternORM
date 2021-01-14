@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class SaveIdAuto<T, ID> extends SaveStrategy<T, ID> {
     @Override
-    public T insert(T obj) {
+    public T insert(Connection connection, T obj) {
         HashMap<String, Object> properties = mapper.serialize(obj);
         properties.remove(idName.getValue());
         String[] columnNames = new String[properties.size()];
@@ -37,7 +37,7 @@ public class SaveIdAuto<T, ID> extends SaveStrategy<T, ID> {
         return null;
     }
 
-    public SaveIdAuto(Connection connection, Mapper<T> mapper, String tableName, Map.Entry<String, String> idName) {
-        super(connection, mapper, tableName, idName);
+    public SaveIdAuto(Mapper<T> mapper, String tableName, Map.Entry<String, String> idName) {
+        super(mapper, tableName, idName);
     }
 }

@@ -154,12 +154,12 @@ public abstract class AbstractRepository<T, ID> {
             Field idField = obj.getClass().getDeclaredField(idFieldMap.getKey());
             SaveStrategy<T, ID> saver;
             if (idField.isAnnotationPresent(IdAutoIncrement.class))
-                saver = new SaveIdAuto<>(connection, mapper, tableName, idFieldMap);
+                saver = new SaveIdAuto<>(mapper, tableName, idFieldMap);
             else
-                saver = new SaveIdManual<>(connection, mapper, tableName, idFieldMap);
-            T updatedRow = saver.update(obj);
+                saver = new SaveIdManual<>(mapper, tableName, idFieldMap);
+            T updatedRow = saver.update(connection, obj);
             if (updatedRow != null) return updatedRow;
-            T insertedRow = saver.insert(obj);
+            T insertedRow = saver.insert(connection, obj);
             if (insertedRow != null) return insertedRow;
         } catch (NoSuchFieldException e) {
             e.printStackTrace();

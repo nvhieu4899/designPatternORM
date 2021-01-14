@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class SaveIdManual<T, ID> extends SaveStrategy<T, ID> {
     @Override
-    public T insert(T obj) {
+    public T insert(Connection connection, T obj) {
         HashMap<String, Object> properties = mapper.serialize(obj);
         String[] columnNames = new String[properties.size()];
         Object[] parameters = new Object[properties.size()];
@@ -29,7 +29,7 @@ public class SaveIdManual<T, ID> extends SaveStrategy<T, ID> {
         return null;
     }
 
-    public SaveIdManual(Connection connection, Mapper<T> mapper, String tableName, Map.Entry<String, String> idName) {
-        super(connection, mapper, tableName, idName);
+    public SaveIdManual(Mapper<T> mapper, String tableName, Map.Entry<String, String> idName) {
+        super(mapper, tableName, idName);
     }
 }

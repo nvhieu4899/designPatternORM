@@ -10,12 +10,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class SaveStrategy<T, ID> {
-    protected Connection connection;
     protected Mapper<T> mapper;
     protected String tableName;
     protected Map.Entry<String, String> idName;
 
-    public T update(T obj) {
+    public T update(Connection connection, T obj) {
         HashMap<String, Object> hashMap = mapper.serialize(obj);
         hashMap.remove(idName.getValue());
 
@@ -36,10 +35,9 @@ public abstract class SaveStrategy<T, ID> {
         return null;
     }
 
-    public abstract T insert(T obj);
+    public abstract T insert(Connection connection, T obj);
 
-    public SaveStrategy(Connection connection, Mapper<T> mapper, String tableName, Map.Entry<String, String> idName) {
-        this.connection = connection;
+    public SaveStrategy(Mapper<T> mapper, String tableName, Map.Entry<String, String> idName) {
         this.mapper = mapper;
         this.tableName = tableName;
         this.idName = idName;
