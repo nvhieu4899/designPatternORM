@@ -1,3 +1,4 @@
+import loader.Mapper;
 import connection.ConnectionFactory;
 import org.junit.Ignore;
 import org.junit.Test;

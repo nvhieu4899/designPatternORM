@@ -1,3 +1,4 @@
+import loader.Mapper;
 import query.QueryBuilder;
 import query.UpdateQueryBuilder;
 

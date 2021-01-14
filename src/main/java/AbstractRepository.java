@@ -1,3 +1,4 @@
+import loader.Mapper;
 import annotation.IdAutoIncrement;
 import annotation.Column;
 import annotation.Entity;
@@ -22,7 +23,8 @@ public abstract class AbstractRepository<T, ID> {
     public List<T> findAll() {
         Connection connection = connectionFactory.open();
         try {
-            ResultSet resultSet = connection.createStatement().executeQuery(QueryBuilder.select("*").from(tableName).build());
+            ResultSet resultSet
+                    = connection.createStatement().executeQuery(QueryBuilder.select("*").from(tableName).build());
             return mapper.deserialize(resultSet);
         } catch (SQLException e) {
             e.printStackTrace();

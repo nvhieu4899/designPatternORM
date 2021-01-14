@@ -1,3 +1,5 @@
+package loader;
+
 import annotation.Column;
 
 import java.lang.reflect.Field;
@@ -19,8 +21,10 @@ public class Mapper<T> {
             ResultSetMetaData metaData = resultSet.getMetaData();
             HashMap<String, String> deserializeContext = getDeserializeContext(metaData);
             int colNums = metaData.getColumnCount();
+
             while (resultSet.next()) {
                 T mappedObj = persistenceClass.newInstance();
+
                 for (int i = 0; i < colNums; i++) {
                     String colName = metaData.getColumnName(i + 1);
                     String objField = deserializeContext.getOrDefault(colName, null);
@@ -32,8 +36,13 @@ public class Mapper<T> {
                         field.set(mappedObj, fieldValue);
                     }
                 }
+
                 results.add(mappedObj);
             }
+
+//            Class clazz = Helper.class;
+//            clazz.getField("unknown").getType()
+
             return results;
         } catch (Exception e) {
             e.printStackTrace();

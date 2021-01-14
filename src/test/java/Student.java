@@ -1,6 +1,10 @@
 import annotation.Column;
 import annotation.Entity;
+<<<<<<<< HEAD:src/test/java/Student.java
 import annotation.Id;
+========
+import annotation.OneToMany;
+>>>>>>>> origin/feature/findByID:src/test/java/SinhVien.java
 
 import java.sql.Date;
 
