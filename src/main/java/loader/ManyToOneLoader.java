@@ -1,6 +1,7 @@
 package loader;
 
-import annotation.Key;
+import annotation.Entity;
+import annotation.Id;
 import annotation.ManyToOne;
 import connection.ConnectionFactory;
 
@@ -13,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ManyToOneLoader<T> {
+public class ManyToOneLoader<T> implements ReferenceLoader<T> {
 
     private Class<T> persistenceClass;
 
@@ -24,64 +25,54 @@ public class ManyToOneLoader<T> {
     public void load(List<T> entities, String propertyName) {
         Connection connection = ConnectionFactory.getInstance().open();
         try {
+            // get info of property type
             Field propertyField = persistenceClass.getDeclaredField(propertyName);
             propertyField.setAccessible(true);
-            ManyToOne annotation = propertyField.getAnnotation(ManyToOne.class);
-//            Type type = propertyField.getGenericType();
-            String entityForeignKeyName = "";
             Class propertyType = propertyField.getType();
+            ManyToOne manyToOneAnnotation = propertyField.getAnnotation(ManyToOne.class);
+            Entity entityAnnotation = (Entity) propertyType.getAnnotation(Entity.class);
             String tableName = propertyType.getSimpleName();
 
+            // get table name
+            if (!entityAnnotation.table().isEmpty()) {
+                tableName = entityAnnotation.table();
+            }
 
-//            if (type instanceof ParameterizedType) {
-//                ParameterizedType pt = (ParameterizedType) type;
-//                propertyType = (Class) pt.getActualTypeArguments()[0];
-//
-//                for (Field field : propertyType.getDeclaredFields()) {
-//                    if (field.isAnnotationPresent(ManyToOne.class) && field.getType() == persistenceClass) {
-//                        propertyForeignKeyName = field.getAnnotation(ManyToOne.class).keyPropertyName();
-//                        break;
-//                    }
-//                }
-//
-////                tableName = ;
-//            }
-
-            if (annotation != null) {
-                entityForeignKeyName = annotation.keyPropertyName();
-                Field propertyPrimaryKeyField = null;
+            if (manyToOneAnnotation != null) {
+                // get info of key
+                String entityForeignKeyName = manyToOneAnnotation.keyPropertyName();
                 Field entityForeignKeyField = persistenceClass.getDeclaredField(entityForeignKeyName);
                 entityForeignKeyField.setAccessible(true);
+                Field propertyTypePrimaryKeyField = null;
 
                 for (Field field : propertyType.getDeclaredFields()) {
-                    if (field.isAnnotationPresent(Key.class)) {
-                        propertyPrimaryKeyField = field;
-                        propertyPrimaryKeyField.setAccessible(true);
+                    if (field.isAnnotationPresent(Id.class)) {
+                        propertyTypePrimaryKeyField = field;
+                        propertyTypePrimaryKeyField.setAccessible(true);
                         break;
                     }
                 }
 
+                // execute query
                 StringBuilder command = new StringBuilder();
                 command.append("select * from ");
                 command.append(tableName);
                 PreparedStatement preparedStatement
                         = connection.prepareStatement(command.toString());
-
-                // not processing entity annotation
                 ResultSet resultSet = preparedStatement.executeQuery();
+
+                // process result
                 Mapper mapper = new Mapper(propertyType);
                 List result = mapper.deserialize(resultSet);
                 Map<Object, Object> propertyObjectMap = new HashMap<>();
 
-//                for (Object obj : entities) {
-//                    propertyObjectMap.put(propertyPrimaryKeyField.get(obj), );
-//                }
-
+                // group objects
                 for (Object obj : result) {
-                    Object propertyForeignKeyValue = propertyPrimaryKeyField.get(obj);
+                    Object propertyForeignKeyValue = propertyTypePrimaryKeyField.get(obj);
                     propertyObjectMap.put(propertyForeignKeyValue, obj);
                 }
 
+                // reference object to respective entities
                 for (Object obj : entities) {
                     Object key = entityForeignKeyField.get(obj);
                     if (propertyObjectMap.containsKey(key)) {
