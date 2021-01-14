@@ -4,14 +4,14 @@ import annotation.OneToMany;
 
 import java.lang.reflect.Field;
 
-public class OneToManyChecker<T> extends RelationshipChecker<T>{
+public class OneToManyChecker<T> extends RelationshipChecker<T> {
     public OneToManyChecker(Class<T> persistenceClass) {
         super(persistenceClass);
     }
 
     @Override
-    protected RelationshipChecker getNextChecker() {
-        return new ManyToOneChecker(persistenceClass);
+    protected RelationshipChecker<T> getNextChecker() {
+        return new ManyToOneChecker<T>(persistenceClass);
     }
 
     @Override

@@ -10,8 +10,8 @@ public class OneToOneChecker<T> extends RelationshipChecker<T> {
     }
 
     @Override
-    protected RelationshipChecker getNextChecker() {
-        return new OneToManyChecker(persistenceClass);
+    protected RelationshipChecker<T> getNextChecker() {
+        return new OneToManyChecker<T>(persistenceClass);
     }
 
     @Override

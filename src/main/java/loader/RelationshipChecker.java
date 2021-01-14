@@ -6,7 +6,7 @@ public abstract class RelationshipChecker<T> {
     protected Class<T> persistenceClass;
     protected ReferenceLoader<T> loader;
 
-    protected abstract RelationshipChecker getNextChecker();
+    protected abstract RelationshipChecker<T> getNextChecker();
 
     protected abstract void initializeLoader();
 
@@ -22,7 +22,6 @@ public abstract class RelationshipChecker<T> {
 
         if (getNextChecker() != null)
             return getNextChecker().check(field);
-
         return null;
     }
 
