@@ -1,9 +1,7 @@
-package Loader;
+package loader;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Map;
 
 public class LoadManager<T> {
     Class<T> persistenceClass;

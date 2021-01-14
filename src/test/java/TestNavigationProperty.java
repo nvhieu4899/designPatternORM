@@ -1,7 +1,4 @@
-import Loader.LoadManager;
-import Loader.ManyToOneLoader;
-import Loader.OneToManyLoader;
-import Loader.OneToOneLoader;
+import loader.LoadManager;
 import org.junit.Test;
 
 import java.util.List;

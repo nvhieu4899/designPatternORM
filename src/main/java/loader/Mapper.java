@@ -1,7 +1,6 @@
-package Loader;
+package loader;
 
 import annotation.Column;
-import query.Helper;
 
 import java.lang.reflect.Field;
 import java.sql.ResultSet;

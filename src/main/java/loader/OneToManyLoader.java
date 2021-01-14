@@ -1,4 +1,4 @@
-package Loader;
+package loader;
 
 import annotation.Entity;
 import annotation.Id;

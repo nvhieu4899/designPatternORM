@@ -1,4 +1,4 @@
-import Loader.Mapper;
+import loader.Mapper;
 import connection.ConnectionFactory;
 import query.QueryBuilder;
 
