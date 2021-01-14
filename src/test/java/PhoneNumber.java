@@ -8,7 +8,7 @@ public class PhoneNumber {
     private String number;
 
     @ManyToOne(keyPropertyName = "idStudent")
-    private Student student;
+    private SinhV student;
 
     public long getIdStudent() {
         return idStudent;
@@ -26,11 +26,11 @@ public class PhoneNumber {
         this.number = number;
     }
 
-    public Student getStudent() {
+    public SinhV getStudent() {
         return student;
     }
 
-    public void setStudent(Student student) {
-        this.student = student;
+    public void setStudent(SinhV sinhV) {
+        this.student = sinhV;
     }
 }

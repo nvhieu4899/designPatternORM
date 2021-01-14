@@ -1,22 +1,19 @@
 package Loader;
 
-import annotation.Key;
-import annotation.ManyToOne;
-import annotation.OneToMany;
+import annotation.Entity;
+import annotation.Id;
 import connection.ConnectionFactory;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class OneToOneLoader<T> {
+public class OneToOneLoader<T> implements ReferenceLoader<T> {
 
     private Class<T> persistenceClass;
 
@@ -24,40 +21,26 @@ public class OneToOneLoader<T> {
         this.persistenceClass = persistenceClass;
     }
 
+    @Override
     public void load(List<T> entities, String propertyName) {
         Connection connection = ConnectionFactory.getInstance().open();
 
         try {
-//            Method method = OneToOneLoader.class.getMethod("load", List.class, String.class);
-//            Type type;
-//            Class entityType = null;
-
-//            for (Type parameterType : method.getGenericParameterTypes()) {
-//                if (parameterType instanceof ParameterizedType) {
-//                    ParameterizedType pt = (ParameterizedType) parameterType;
-//                    entityType = (Class) pt.getActualTypeArguments()[0];
-//                    break;
-//                }
-//            }
-
-
-//            if (type instanceof ParameterizedType) {
-
-//            } else return;
-
-
+            // get info of property type
             Field propertyField = persistenceClass.getDeclaredField(propertyName);
             propertyField.setAccessible(true);
             Class propertyType = propertyField.getType();
+            Entity entityAnnotation = (Entity) propertyType.getAnnotation(Entity.class);
+            String tableName = propertyType.getSimpleName();
+            if(!entityAnnotation.table().isEmpty())
+                tableName = entityAnnotation.table();
 
-            String tableName = propertyField.getType().getSimpleName();
-
-            // primary key of
+            // get info of key
             Field propertyPrimaryKey = null;
             Field entityPrimaryKey = null;
 
             for (Field field : propertyType.getDeclaredFields()) {
-                if (field.isAnnotationPresent(Key.class)) {
+                if (field.isAnnotationPresent(Id.class)) {
                     propertyPrimaryKey = field;
                     propertyPrimaryKey.setAccessible(true);
                     break;
@@ -65,63 +48,37 @@ public class OneToOneLoader<T> {
             }
 
             for (Field field : persistenceClass.getDeclaredFields()) {
-                if (field.isAnnotationPresent(Key.class)) {
+                if (field.isAnnotationPresent(Id.class)) {
                     entityPrimaryKey = field;
                     entityPrimaryKey.setAccessible(true);
                     break;
                 }
             }
 
-//            List<Object> values = new ArrayList<>();
-//
-//            for (Field field : entityType.getDeclaredFields()) {
-//                if (field.isAnnotationPresent(Key.class)) {
-//                    field.setAccessible(true);
-//                    values.add(field.get(entities));
-//
-//                }
-//            }
-
-
-//            for (int i = 0; i < primaryKey.size(); ++i) {
-//                primaryKey.set(i, primaryKey.get(i) + " = ?");
-//            }
-
+            // execute query
             StringBuilder command = new StringBuilder();
             command.append("select * from ");
             command.append(tableName);
-//            command.append(" where ");
-//            command.append(String.join(" AND ", primaryKey));
-
             PreparedStatement preparedStatement
                     = connection.prepareStatement(command.toString());
-
-//            for (int i = 0; i < values.size(); ++i) {
-//                preparedStatement.setObject(i + 1, values.get(i));
-//            }
-            // not processing entity annotation
             ResultSet resultSet = preparedStatement.executeQuery();
+
+            // process result
             Mapper mapper = new Mapper(propertyType);
-
-//            Field field = entityType.getDeclaredField(propertyName);
-//            field.setAccessible(true);
             List result = mapper.deserialize((resultSet));
-
             Map<Object, Object> propertyObjectMap = new HashMap<>();
-//            for (T entity : entities) {
-//                propertyObjectMap.put(entityPrimaryKey.get(entity), new ArrayList());
-//            }
 
+            // group objects
             for (Object obj : result) {
                 propertyObjectMap.put(propertyPrimaryKey.get(obj), obj);
             }
 
+            // reference objects to respective entities
             for (T entity : entities) {
                 if (propertyObjectMap.containsKey(entityPrimaryKey.get(entity))) {
                     propertyField.set(entity, propertyObjectMap.get(entityPrimaryKey.get(entity)));
                 }
             }
-
 
         } catch (NoSuchFieldException | IllegalAccessException | SQLException e) {
             e.printStackTrace();

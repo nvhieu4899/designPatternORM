@@ -2,9 +2,9 @@ import annotation.*;
 
 import java.util.Collection;
 
-@Entity
-public class Student {
-    @Key
+@Entity(table = "Student")
+public class SinhV {
+    @Id
     private Long id;
     @Column(name = "displayName")
     private String name;
@@ -12,13 +12,13 @@ public class Student {
     @OneToMany
     private Collection<PhoneNumber> phoneNumbers;
     @OneToOne
-    private Account account;
+    private TaiKhoan account;
 
-    public Account getAccount() {
+    public TaiKhoan getAccount() {
         return account;
     }
 
-    public void setAccount(Account account) {
+    public void setAccount(TaiKhoan account) {
         this.account = account;
     }
 

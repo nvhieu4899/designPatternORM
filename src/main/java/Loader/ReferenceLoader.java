@@ -1,7 +1,6 @@
 package Loader;
 
-
-import annotation.Key;
+import annotation.Id;
 import annotation.ManyToOne;
 import annotation.OneToMany;
 import connection.ConnectionFactory;
@@ -20,7 +19,10 @@ import java.util.Map;
 
 public interface ReferenceLoader<T> {
 
+
+
     public static <T> void load(T entity, String propertyName) {
+
 
         Connection connection = ConnectionFactory.getInstance().open();
         try {
@@ -53,7 +55,7 @@ public interface ReferenceLoader<T> {
                 List<Object> values = new ArrayList<>();
 
                 for (Field field : clazz.getDeclaredFields()) {
-                    if (field.isAnnotationPresent(Key.class)) {
+                    if (field.isAnnotationPresent(Id.class)) {
                         field.setAccessible(true);
                         values.add(field.get(entity));
                     }
@@ -105,10 +107,6 @@ public interface ReferenceLoader<T> {
 
     }
 
-    public static <T> void Load(T[] entities, String propertyName) {
-
-    }
-
-//    protected void
+    public void load(List<T> entities, String propertyName);
 
 }
