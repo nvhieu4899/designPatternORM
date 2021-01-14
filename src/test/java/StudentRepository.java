@@ -1,6 +1,6 @@
-public class StudentRepository extends AbstractRepository<SinhV, Long> {
+public class StudentRepository extends AbstractRepository<Student, Long> {
 
     public StudentRepository() {
-        super(SinhV.class, Long.class);
+        super(Student.class, Long.class);
     }
 }
