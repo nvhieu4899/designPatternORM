@@ -8,6 +8,7 @@ public class SelectQueryBuilder implements QueryBuilder {
     private String whereClause;
     private String[] groupBy;
     private String havingClause;
+    private int limit = -1;
 
     public SelectQueryBuilder(String... fields) {
         this.fields = fields;
@@ -37,6 +38,10 @@ public class SelectQueryBuilder implements QueryBuilder {
             sb.append(" HAVING ");
             sb.append(havingClause);
         }
+
+        if (limit != -1) {
+            sb.append(" LIMIT ").append(limit);
+        }
         sb.append(";");
 
         return sb.toString();
@@ -60,6 +65,11 @@ public class SelectQueryBuilder implements QueryBuilder {
 
     public SelectQueryBuilder groupBy(String... fields) {
         this.groupBy = fields;
+        return this;
+    }
+
+    public SelectQueryBuilder limitBy(int limit) {
+        this.limit = limit;
         return this;
     }
 

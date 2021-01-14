@@ -1,8 +1,6 @@
 package connection;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -10,7 +8,7 @@ import java.util.Properties;
 
 public class ConnectionFactory {
     //Default location
-    private static final String CONFIG_FILE_PATH = "\\config.properties";
+    private static final String CONFIG_FILE_PATH = "config.properties";
     private String URL = "";
     private String USERNAME = "";
     private String PASSWORD = "";
@@ -48,24 +46,14 @@ public class ConnectionFactory {
      */
     private void readConfig(String configFilePath) {
         Properties properties = new Properties();
-        InputStream input = null;
         try {
-            String _dirname = System.getProperty("user.dir");
-            input = new FileInputStream(_dirname.concat(configFilePath));
-            properties.load(input);
+            ClassLoader classLoader = getClass().getClassLoader();
+            properties.load(classLoader.getResourceAsStream(configFilePath));
             URL = properties.getProperty("URL");
             USERNAME = properties.getProperty("USERNAME");
             PASSWORD = properties.getProperty("PASSWORD");
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (input != null) {
-                    input.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 }

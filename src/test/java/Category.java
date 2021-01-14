@@ -1,12 +1,16 @@
+import annotation.IdAutoIncrement;
 import annotation.Column;
 import annotation.Entity;
+import annotation.Id;
 
 import java.sql.Date;
 
 @Entity
 public class Category {
 
-    @Column(name="Id")
+    @Id
+    @IdAutoIncrement
+    @Column(name = "Id")
     private Long id;
 
     @Column(name = "Name")
