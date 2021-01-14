@@ -1,12 +1,14 @@
-import annotation.Key;
+import annotation.Entity;
+import annotation.Id;
 import annotation.OneToOne;
 
-public class Account {
-    @Key
+@Entity(table = "Account")
+public class TaiKhoan {
+    @Id
     private  Long idStudent;
     private String userName;
     @OneToOne
-    private Student student;
+    private SinhV sinhV;
 
     public Long getIdStudent() {
         return idStudent;
@@ -24,11 +26,11 @@ public class Account {
         this.userName = userName;
     }
 
-    public Student getStudent() {
-        return student;
+    public SinhV getStudent() {
+        return sinhV;
     }
 
-    public void setStudent(Student student) {
-        this.student = student;
+    public void setStudent(SinhV sinhV) {
+        this.sinhV = sinhV;
     }
 }
